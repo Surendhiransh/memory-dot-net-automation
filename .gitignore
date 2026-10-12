@@ -43,6 +43,8 @@ Hpe/spec_verifier/*_ANALYSIS.txt
 # Gigaipc -- generated catalog/report CSVs are run output, not source
 Gigaipc/*.csv
 Gigaipc/output/
+Gigaipc/gigabyte_enterprise_products/*.csv
+Gigaipc/gigabyte_enterprise_products/*.xlsx
 
 # Hpe / kingston_scraper -- generated run output, not source
 Hpe/output/

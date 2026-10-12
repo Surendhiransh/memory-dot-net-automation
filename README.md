@@ -7,6 +7,7 @@ project with its own README, setup, and usage.
 | Folder | What it does |
 |---|---|
 | [`Gigaipc/`](Gigaipc/README.md) | Scrapes the GIGAIPC industrial-PC catalog and audits an existing catalog CSV against the live site |
+| [`Gigaipc/gigabyte_enterprise_products/`](Gigaipc/gigabyte_enterprise_products/README.md) | Verifies a Gigabyte enterprise-product catalog CSV against gigabyte.com and builds an Excel mismatch report |
 | [`Hpe/`](Hpe/README.md) | Extracts processor models/descriptions from HPE QuickSpecs PDFs |
 | [`Hpe/spec_verifier/`](Hpe/spec_verifier/README.md) | Verifies HPE server specifications from PDF/HTML URLs against CSV data |
 | [`kingston_scraper/`](kingston_scraper/README.md) | Playwright agent that scrapes Kingston system pages for specs and compatible memory/SSD parts |
