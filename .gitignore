@@ -49,3 +49,9 @@ Gigaipc/gigabyte_enterprise_products/*.xlsx
 # Hpe / kingston_scraper -- generated run output, not source
 Hpe/output/
 kingston_scraper/output/
+
+# Oracle -- source data and generated reports (data privacy, not deliverable)
+Oracle/oracle_host_memory_specification*.csv
+Oracle/output/
+Oracle/ci-output/
+Oracle/tests/Oracle_Memory_Spec_Test_Cases.xlsx
