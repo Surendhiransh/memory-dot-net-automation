@@ -10,6 +10,7 @@ project with its own README, setup, and usage.
 | [`Gigaipc/gigabyte_enterprise_products/`](Gigaipc/gigabyte_enterprise_products/README.md) | Verifies a Gigabyte enterprise-product catalog CSV against gigabyte.com and builds an Excel mismatch report |
 | [`Hpe/`](Hpe/README.md) | Extracts processor models/descriptions from HPE QuickSpecs PDFs |
 | [`Hpe/spec_verifier/`](Hpe/spec_verifier/README.md) | Verifies HPE server specifications from PDF/HTML URLs against CSV data |
+| [`Oracle/`](Oracle/README.md) | Verifies DIMM slots, maximum memory and LRDIMM/RDIMM/UDIMM/SODIMM values in a CSV against Oracle/Fujitsu datasheet PDFs, with an Excel evidence report and a unittest suite (CI: `.github/workflows/oracle-tests.yml`) |
 | [`kingston_scraper/`](kingston_scraper/README.md) | Playwright agent that scrapes Kingston system pages for specs and compatible memory/SSD parts |
 | `vmware/` | Validates Broadcom VMware Compatibility Guide SSD/HDD part data (on branch `add-vmware-part-validation` until merged) |
 
