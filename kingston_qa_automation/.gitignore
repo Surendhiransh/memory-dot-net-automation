@@ -1,0 +1,6 @@
+# Local-only: never commit
+.browser_profile/
+reports/
+__pycache__/
+*.pyc
+.pytest_cache/
