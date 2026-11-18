@@ -487,15 +487,27 @@ def main() -> int:
     for status in sorted(summary, key=status_sort_key):
         print(f"{status}: {summary.get(status, 0)}")
 
-    failed_statuses = {
-        status: sum(count for row_status, count in summary.items() if status_contains(row_status, status))
-        for status in args.fail_on
-    }
+    failed_statuses = {status: count_rows_with_status(summary, status) for status in args.fail_on}
     failed_statuses = {status: count for status, count in failed_statuses.items() if count}
     if failed_statuses:
         print(f"Failing because these statuses were found: {failed_statuses}", file=sys.stderr)
         return 1
     return 0
+
+
+def count_rows_with_status(summary: Counter[str], status: str) -> int:
+    """Count rows whose combined status (e.g. 'Match|Mismatch') contains `status`."""
+    return sum(count for row_status, count in summary.items() if status_contains(row_status, status))
+
+
+def assert_no_mismatch_or_duplicate(summary: Counter[str]) -> None:
+    mismatch_rows = count_rows_with_status(summary, STATUS_MISMATCH)
+    duplicate_rows = count_rows_with_status(summary, STATUS_DUPLICATE)
+    assert mismatch_rows == 0 and duplicate_rows == 0, (
+        f"{mismatch_rows} row(s) contain {STATUS_MISMATCH} and "
+        f"{duplicate_rows} row(s) contain {STATUS_DUPLICATE}. "
+        f"Row statuses: {dict(summary)}"
+    )
 
 
 def test_no_speed_mismatch_or_ambiguous_duplicate() -> None:
@@ -509,8 +521,7 @@ def test_no_speed_mismatch_or_ambiguous_duplicate() -> None:
             summary_out=temp_path / "summary.csv",
         )
 
-    assert summary.get(STATUS_MISMATCH, 0) == 0
-    assert summary.get(STATUS_DUPLICATE, 0) == 0
+    assert_no_mismatch_or_duplicate(summary)
 
 
 if __name__ == "__main__":

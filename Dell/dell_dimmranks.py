@@ -97,11 +97,40 @@ def convert_capacity_to_mb(capacity_str):
         return int(value)
     return None
 
+def _is_blank(value) -> bool:
+    return value is None or (not isinstance(value, str) and pd.isnull(value)) or str(value).strip() == ""
+
+
+def _capacity_issue(capacity, module_capacity_mb) -> str:
+    """
+    Compare 'capacity' (e.g. '16GB') with 'module_capacity_mb' (e.g. 16384).
+    Returns an issue description, or "" when the values agree or both are blank.
+    """
+    if _is_blank(capacity) and _is_blank(module_capacity_mb):
+        return ""
+    if _is_blank(capacity):
+        return f"Capacity missing while module_capacity_mb={module_capacity_mb}"
+    converted = convert_capacity_to_mb(str(capacity))
+    if converted is None:
+        return f"Capacity unparseable: {capacity!r}"
+    if _is_blank(module_capacity_mb):
+        return f"module_capacity_mb missing for capacity {capacity} ({converted} MB)"
+    try:
+        module_mb = float(str(module_capacity_mb).strip())
+    except ValueError:
+        return f"module_capacity_mb unparseable: {module_capacity_mb!r}"
+    if module_mb != converted:
+        return (
+            f"Capacity mismatch: capacity {capacity} = {converted} MB, "
+            f"module_capacity_mb = {module_capacity_mb}"
+        )
+    return ""
+
+
 def test_capacity_mb_conversion_and_comparison(df: pd.DataFrame):
     """
     Converts 'capacity' column to MB, stores in 'capacity_mb_converted',
-    and compares with 'module_capacity_mb'.
-    Writes a report of mismatches.
+    and compares with 'module_capacity_mb'. Fails if any row disagrees.
     """
     assert "capacity" in df.columns, "Missing 'capacity' column"
     assert "module_capacity_mb" in df.columns, "Missing 'module_capacity_mb' column"
@@ -109,17 +138,16 @@ def test_capacity_mb_conversion_and_comparison(df: pd.DataFrame):
     df["capacity_mb_converted"] = df["capacity"].apply(convert_capacity_to_mb)
     mismatches = []
     for idx, row in df.iterrows():
-        converted = row["capacity_mb_converted"]
-        module_mb = row["module_capacity_mb"]
-        if pd.isnull(converted) or pd.isnull(module_mb):
-            continue
-        if int(converted) != int(module_mb):
-            mismatches.append({
-                "row": idx,
-                "capacity": row["capacity"],
-                "capacity_mb_converted": converted,
-                "module_capacity_mb": module_mb
-            })
+        issue = _capacity_issue(row["capacity"], row["module_capacity_mb"])
+        if issue:
+            mismatches.append(f"row {idx}: {issue}")
+
+    if mismatches:
+        shown = "\n".join(mismatches[:50])
+        more = f"\n... and {len(mismatches) - 50} more" if len(mismatches) > 50 else ""
+        pytest.fail(f"{len(mismatches)} capacity/module_capacity_mb issue(s):\n{shown}{more}")
+
+
 def test_dimm_ranks_presence_in_server(df: pd.DataFrame):
     """
     Validate dimm_ranks vs server_dimm_ranks for each row.
@@ -165,6 +193,12 @@ def test_dimm_ranks_presence_in_server(df: pd.DataFrame):
         if duplicate_ranks:
             status = "FAIL"
             issues.append(f"Duplicates in server_dimm_ranks: {', '.join(set(duplicate_ranks))}")
+
+        if "capacity" in df.columns or "module_capacity_mb" in df.columns:
+            cap_issue = _capacity_issue(row.get("capacity"), row.get("module_capacity_mb"))
+            if cap_issue:
+                status = "FAIL"
+                issues.append(cap_issue)
 
         dimm_rank_issue = ""
         server_dimm_rank_issue = ""
